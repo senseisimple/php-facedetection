@@ -169,10 +169,13 @@ class FaceDetector
      * If file is provided, the face will be stored in file, other way it will be output to standard output.
      *
      * @param string|null $outFileName file name to store. If null, will be printed to output
+     * @param boolean|false $resize resize crop image.
+     * @param int $width widht of new crop image. $resize value must 'true'. default to 200
+     * @param int $height height of new crop image. $resize value must 'true'. default to 200
      *
      * @throws NoFaceException
      */
-    public function cropFaceToJpeg($outFileName = null)
+    public function cropFaceToJpeg($outFileName = null, $resize = false, $resizewidth = 200, $resizeheight = 200)
     {
         if (empty($this->face)) {
             throw new NoFaceException('No face detected');
@@ -186,8 +189,12 @@ class FaceDetector
         $h = ($h = $w) > $im_height ? $im_height : $h;
 
         $canvas = imagecreatetruecolor($w, $h);
-        imagecopy($canvas, $this->canvas, 0, 0, $x, $y, $w, $h);
-
+        if ($resize) {
+            imagecopyresized($canvas , $this->canvas, 0, 0,  $x, $y, $resizewidth, $resizeheight,  $w, $h);
+        } else {
+            imagecopy($canvas, $this->canvas, 0, 0, $x, $y, $w, $h);
+        }
+        
         if ($outFileName === null) {
             header('Content-type: image/jpeg');
         }
